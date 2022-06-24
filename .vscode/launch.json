@@ -1,0 +1,39 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Dashmin.Server",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Server",
+            "program": "${workspaceFolder}/Dashmin.Server/bin/Debug/netcoreapp3.1/Dashmin.Server.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Dashmin.Server",
+            "requireExactSource": false,
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        },
+        {
+            "name": "Dashmin.Client",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Client",
+            "requireExactSource": false,
+            "program": "${workspaceFolder}/Dashmin.Client/bin/Debug/netcoreapp3.1/Dashmin.Client.dll",
+            "args": ["--debug","--port=3000"],
+            "cwd": "${workspaceFolder}/Dashmin.Client",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        }
+    ]
+}
