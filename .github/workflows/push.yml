@@ -2,7 +2,7 @@ name: Build stable version
 on:
   push:
     branches:
-    - master
+    - main
 
 jobs:
   image:
