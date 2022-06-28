@@ -13,19 +13,6 @@ services:
     command: sleep infinity
     ports:
       - "5001:5001"
+      - "5002:5002"
     env_file:
       - ../.env
-    depends_on:
-      - postgres
-
-  postgres:
-    image: 'postgres:13.2-alpine'
-    volumes:
-      - 'Delta-postgres:/var/lib/postgresql/data'
-    ports:
-      - "5432:5432"
-    env_file:
-      - ../.env
-
-volumes:
-  Delta-postgres:

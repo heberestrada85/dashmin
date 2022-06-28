@@ -97,14 +97,13 @@ namespace Dashmin.Client
 
             AddJobs(app,jobManager);
             var options = new BackgroundJobServerOptions { WorkerCount = 1 };
-            app.UseHangfireServer();
-            app.UseHangfireDashboard();
+            app.UseHangfireServer(options);
+            app.UseHangfireDashboard("/dashmin");
+            app.UseHealthChecks("/health");
 
             // CORS
             app.UseHsts();
             app.UseCors(MyAllowSpecificOrigins);
-
-            app.UseHangfireDashboard("/dashmin");
 
             // Authorizations
             app.UseAuthentication();

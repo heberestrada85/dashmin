@@ -25,11 +25,20 @@
             "preLaunchTask": "Client",
             "requireExactSource": false,
             "program": "${workspaceFolder}/Dashmin.Client/bin/Debug/netcoreapp3.1/Dashmin.Client.dll",
-            "args": ["--debug","--port=3000"],
+            "args": ["--debug","--port=5001"],
             "cwd": "${workspaceFolder}/Dashmin.Client",
             "stopAtEntry": false,
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "COMPOSE_PROJECT_NAME": "Dashmin_project",
+                "COMPOSE_FILE": ".devcontainer/docker-compose.yml",
+                "KUBECONFIG": "/workspace/.kube/config",
+                "TZ": "America/Chihuahua",
+                "LANG": "es_ES.utf8",
+                "POSTGRESCONNECTIONSTRING": "Host=dashboard.hospisoft.mx;Database=dashboard;Username=dashboard;Password=041099;Pooling=false;Timeout=300;CommandTimeout=300",
+                "ORACLECONNECTIONSTRING": "Data Source=desarrollodb.hospisoft.mx:1585/DBDEV;User Id=dbo;Password=041099",
+                "DASHMINSERVER": "http://localhost:5001",
+                "BUSINESSNAME": "MI HOSPITAL SIHO"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

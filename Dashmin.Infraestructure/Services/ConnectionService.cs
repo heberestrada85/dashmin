@@ -44,8 +44,14 @@ namespace Dashmin.Infraestructure.Services
         /// <returns></returns>
         public IDbConnection GetOracleDb()
         {
-            var conn =  new OracleConnection(_configuration.GetConnectionString("OracleConnectionString"));
-            return OpenConnection(conn); 
+            string stringConnection = string.Empty;
+
+            stringConnection = Environment.GetEnvironmentVariable("ORACLECONNECTIONSTRING");
+            if (stringConnection == string.Empty)
+                stringConnection = _configuration.GetConnectionString("OracleConnectionString");
+
+            var conn =  new OracleConnection(stringConnection);
+            return OpenConnection(conn);
         }
 
         /// <summary>
@@ -54,32 +60,38 @@ namespace Dashmin.Infraestructure.Services
         /// <returns></returns>
         public IDbConnection GetNpgsqlDb()
         {
-            var conn =  new NpgsqlConnection(_configuration.GetConnectionString("PostgresConnectionString"));
-            return OpenConnection(conn); 
+            string stringConnection = string.Empty;
+
+            stringConnection = Environment.GetEnvironmentVariable("POSTGRESCONNECTIONSTRING");
+            if (stringConnection == string.Empty)
+                stringConnection = _configuration.GetConnectionString("PostgresConnectionString");
+
+            var conn =  new NpgsqlConnection(stringConnection);
+            return OpenConnection(conn);
         }
 
-        public IDbConnection OpenConnection(IDbConnection conn)  
+        public IDbConnection OpenConnection(IDbConnection conn)
         {
             try
             {
-                if (conn.State == ConnectionState.Closed)  
-                {  
-                    conn.Open();  
-                }  
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
             }
             catch (System.Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
-            return conn; 
+            return conn;
         }
 
-        public void CloseConnection(IDbConnection conn)  
+        public void CloseConnection(IDbConnection conn)
         {
-            if (conn.State == ConnectionState.Open || conn.State == ConnectionState.Broken)  
-            {  
+            if (conn.State == ConnectionState.Open || conn.State == ConnectionState.Broken)
+            {
                 conn.Close();
-            }  
+            }
         }
     }
 }

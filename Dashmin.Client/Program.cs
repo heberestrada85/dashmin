@@ -82,7 +82,6 @@ namespace Dashmin.Client
                 .ConfigureAppConfiguration((context, Builder) =>
                 {
                     Builder
-                    .AddJsonFile($"{path}\\appsettings.json", false, true)
                     .AddEnvironmentVariables();
                 })
                 .ConfigureLogging((hostingContext, logging) =>

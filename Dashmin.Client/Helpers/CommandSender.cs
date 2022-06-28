@@ -7,12 +7,13 @@
 // Developers : Heber Estrada
 
 
-using Hangfire;
-using MediatR;
-using Solar.Hangfire.Interfaces;
 using System;
+using MediatR;
+using Hangfire;
 using System.Threading;
 using System.Threading.Tasks;
+using Solar.Hangfire.Interfaces;
+using Dashmin.Application.Common.Models;
 
 namespace Solar.Hangfire.Helpers
 {
@@ -43,19 +44,19 @@ namespace Solar.Hangfire.Helpers
         /// <returns>Task a procesar</returns>
         //[MaximumConcurrentExecutions(1, 58, 1)]
         //[DisableConcurrentExecution(timeoutInSeconds: 58)]
-        [AutomaticRetry(Attempts = 0)]
+        [AutomaticRetry(Attempts = 1)]
         public async Task<object> SendJob<T>(T command)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = cancellationTokenSource.Token;
             try
             {
-                 return await _mediator.Send(command,cancellationToken);
+                CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = cancellationTokenSource.Token;
+                return await _mediator.Send(command,cancellationToken);;
             }
             catch (Exception e){
-                Console.Write(e.Message);
+                Console.Write($"{e.Message}\n");
+                return Task.FromResult(0L);
             }
-            return Task.FromResult(0L);
         }
     }
 }

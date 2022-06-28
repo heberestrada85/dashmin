@@ -77,8 +77,13 @@ namespace Dashmin.Application.Reports.Commands
             [DisableConcurrentExecution(timeoutInSeconds: 10 * 60)]
             public async Task<Result> Handle(DeleteRequest request, CancellationToken cancellationToken)
             {
-                string apiAddress = _configuration.GetValue<string>("DashminServer");
-                _ = await _apiService.GetDataFromApi<Indicator>($"{apiAddress}/data/DeleteInfoDashboard", request._indicator);                    
+                string apiAddress = string.Empty;
+
+                apiAddress = Environment.GetEnvironmentVariable("DASHMINSERVER");
+                if (apiAddress == string.Empty)
+                    apiAddress = _configuration.GetValue<string>("DashminServer");
+
+                _ = await _apiService.GetDataFromApi<Indicator>($"{apiAddress}/data/DeleteInfoDashboard", request._indicator);
                 return Result.Success();
             }
         }

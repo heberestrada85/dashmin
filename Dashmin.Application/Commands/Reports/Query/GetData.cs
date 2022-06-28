@@ -124,20 +124,26 @@ namespace Dashmin.Application.Reports.Commands
             {
                 try
                 {
-                using (var con = _connection.GetOracleDb())
-                {
-                    IEnumerable<Indicator> indicadores = await con.QueryAsync<Indicator>(queryIndicador, new { }, null, 6000);
-                    string businessName = await con.QueryFirstAsync<string>("SELECT VCHNOMBRE FROM CNEMPRESACONTABLE  WHERE TNYCLAVEEMPRESA  = 1 ", new { }, null, 6000);
-                    List<Indicator> indicadoresLista = _mapper.Map<List<Indicator>>(indicadores);
-                    string apiAddress = _configuration.GetValue<string>("DashminServer");
-                    _apiService.HttpMethodSelector("POST");
+                    using (var con = _connection.GetOracleDb())
+                    {
+                        IEnumerable<Indicator> indicadores = await con.QueryAsync<Indicator>(queryIndicador, new { }, null, 6000);
+                        List<Indicator> indicadoresLista = _mapper.Map<List<Indicator>>(indicadores);
 
-                    if (Singleton.Instance.Foo != 0)
-                        throw new Exception("Worker is busy");
+                        string apiAddress = string.Empty;
+                        apiAddress = Environment.GetEnvironmentVariable("DASHMINSERVER");
+                        if (apiAddress == string.Empty)
+                            apiAddress = _configuration.GetValue<string>("DashminServer");
+
+                        string businessName = string.Empty;
+                        businessName = Environment.GetEnvironmentVariable("BUSINESSNAME");
+                        if (businessName == string.Empty)
+                            businessName = _configuration.GetValue<string>("BusinessName");
+
+                        _apiService.HttpMethodSelector("POST");
 
                         DateTime dateToDisplay = DateTime.Now;
                         string date = dateToDisplay.ToString("G", CultureInfo.CreateSpecificCulture("de-DE"));
-                        Singleton.Instance.Foo++;
+                        
                         _logger.LogInformation($"{date} - Esperando.......");
                         if (indicadoresLista.Count > 0)
                         {
@@ -191,14 +197,13 @@ namespace Dashmin.Application.Reports.Commands
                                                 result = new IndicatorResult()
                                                 {
                                                     Business = reader["EMPRESA"].ToString(),
-                                                    BusinessName = reader["RAZONSOCIAL"].ToString(),
+                                                    BusinessName = businessName,
                                                     Clave = reader["CLAVE"].ToString(),
                                                     Description = reader["DESCRIPCION"].ToString(),
                                                     IdIndicator = reader["IDINDICADOR"].ToString(),
                                                     Value = reader["VALOR"].ToString()
                                                 };
                                                 listIndicators.Add(result);
-
                                             }
                                             if ( listIndicators.Count > 0 )
                                             {
@@ -218,13 +223,11 @@ namespace Dashmin.Application.Reports.Commands
                                 int rowsAffected = con.Execute(sqlQueryUpdate);
                             }
                         }
-                        Singleton.Instance.Foo = 0;
                     }
                 }
                 catch (System.Exception ex)
                 {
                     _logger.LogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"Error {ex.Message} {ex.InnerException} \n");
-                    Singleton.Instance.Foo = 0;
                     throw new Exception(ex.Message);
                 }
                 return Result.Success();

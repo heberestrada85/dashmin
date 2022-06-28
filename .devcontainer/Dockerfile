@@ -21,9 +21,6 @@ RUN apt-get update -qq && \
     curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
     chmod 700 get_helm.sh && \
     ./get_helm.sh && \
-    helm repo add bitnami https://charts.bitnami.com/bitnami && \
-    dotnet tool install --global dotnet-ef
-
-RUN dotnet ef --version
+    helm repo add bitnami https://charts.bitnami.com/bitnami
 
 COPY path-profile.sh /etc/profile.d/
