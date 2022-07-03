@@ -19,7 +19,7 @@ namespace Dashmin.Server.Controllers
     /// Controlador para las llamadas de los metodos existenes.
     /// </summary>
     public class DataController : ApiController
-    {    
+    {
         /// <summary>
         /// Realiza la obtencion de informacion desde oracle
         /// </summary>
@@ -30,6 +30,17 @@ namespace Dashmin.Server.Controllers
         {
             return await Mediator.Send(new GetData());
         }
+
+        /// <summary>
+        /// Realiza la obtencion de informacion desde oracle
+        /// </summary>
+        /// <returns>Result</returns>
+        //[AllowAnonymous]
+        //[HttpGet("UpdateRequest")]
+        //public async Task<Result> UpdateRequest(string businessName)
+        //{
+        //    return await Mediator.Send(new UpdateRequest(businessName));
+        //}
 
         /// <summary>
         /// Realiza la actualizacion de informacion en postgres

@@ -50,11 +50,16 @@ namespace Dashmin.Application.Reports.Commands
             /// Referencia al servicio que devuelve una conexión a la base de datos
             /// </summary>
             IConnectionService _connection;
-            
+
             /// <summary>
             /// Referencia al servicio que devuelve un contexto de la base de datos
             /// </summary>
             IApplicationDBContext _context;
+
+            /// <summary>
+            /// IMediator
+            /// </summary>
+            IMediator _mediator;
 
             /// <summary>
             /// Constructor cuya funcion es la de crear una nueva instancia de <see cref="PatientAccountsHandeler"/>

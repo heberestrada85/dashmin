@@ -57,6 +57,11 @@ namespace Dashmin.Application.Reports.Commands
             IApplicationDBContext _context;
 
             /// <summary>
+            /// IMediator
+            /// </summary>
+            IMediator _mediator;
+
+            /// <summary>
             /// Constructor cuya funcion es la de crear una nueva instancia de <see cref="CollectionPackageHandeler"/>
             /// </summary>
             /// <param name="connection"> Servicio que devuelve una conexión a la base de datos </param>

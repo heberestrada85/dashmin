@@ -43,6 +43,16 @@ namespace Dashmin.Application.Common.Models
         /// Successes this instance.
         /// </summary>
         /// <returns>Result.</returns>
+        public Result()
+        {
+            Succeeded = true;
+            Errors =  new string[] { };
+        }
+
+        /// <summary>
+        /// Successes this instance.
+        /// </summary>
+        /// <returns>Result.</returns>
         public static Result Success()
         {
             return new Result(true, new string[] { });

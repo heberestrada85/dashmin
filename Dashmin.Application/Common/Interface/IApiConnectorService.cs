@@ -14,7 +14,7 @@ namespace Dashmin.Application.Common.Interface
     public interface IApiConnectorService
     {
         public Task<(Result,T)> GetDataFromApi<T>( string apiAddress);
-        public Task<(Result,T)> GetDataFromApi<T>( string apiAddress,T dataToSend);
+        public Task<(Result,T)> GetDataFromApi<T,T2>( string apiAddress,T2 dataToSend);
         public void HttpMethodSelector( string httpMethod );
     }
 }

@@ -49,11 +49,11 @@ namespace Dashmin.Infraestructure.Persistence
         public DbSet<var_total_dias_hospitalizacion> var_total_dias_hospitalizacion { get; set; }
         public DbSet<var_total_egresos> var_total_egresos { get; set; }
         public DbSet<var_total_ingresos_actuales> var_total_ingresos_actuales { get; set; }
+        public DbSet<indicador_actualizacion> indicador_actualizacion { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            
             modelBuilder.Entity<ind_global>().HasNoKey();
 
             base.OnModelCreating(modelBuilder);

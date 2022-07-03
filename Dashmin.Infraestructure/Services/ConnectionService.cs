@@ -47,7 +47,7 @@ namespace Dashmin.Infraestructure.Services
             string stringConnection = string.Empty;
 
             stringConnection = Environment.GetEnvironmentVariable("ORACLECONNECTIONSTRING");
-            if (stringConnection == string.Empty)
+            if ((stringConnection == "") || (stringConnection == null))
                 stringConnection = _configuration.GetConnectionString("OracleConnectionString");
 
             var conn =  new OracleConnection(stringConnection);
@@ -63,7 +63,7 @@ namespace Dashmin.Infraestructure.Services
             string stringConnection = string.Empty;
 
             stringConnection = Environment.GetEnvironmentVariable("POSTGRESCONNECTIONSTRING");
-            if (stringConnection == string.Empty)
+            if ((stringConnection == "") || (stringConnection == null))
                 stringConnection = _configuration.GetConnectionString("PostgresConnectionString");
 
             var conn =  new NpgsqlConnection(stringConnection);

@@ -57,6 +57,11 @@ namespace Dashmin.Application.Reports.Commands
             IApplicationDBContext _context;
 
             /// <summary>
+            /// IMediator
+            /// </summary>
+            IMediator _mediator;
+
+            /// <summary>
             /// Constructor cuya funcion es la de crear una nueva instancia de <see cref="BalancesSeniorityHandeler"/>
             /// </summary>
             /// <param name="connection"> Servicio que devuelve una conexión a la base de datos </param>
@@ -82,7 +87,7 @@ namespace Dashmin.Application.Reports.Commands
                 Organization organization = request._organization;
 
                 using (IDbConnection  conn = _connection.GetNpgsqlDb())
-                {                   
+                {
                     List<var_antiguedad_saldos> DataSet = new List<var_antiguedad_saldos>();
                     int x = 0;
                     try

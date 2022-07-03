@@ -122,32 +122,33 @@ namespace Dashmin.Application.Reports.Commands
             /// <returns> Devuelve una promesa que debe resolver un valor entero </returns>
             public async Task<Result> Handle(GetData request, CancellationToken cancellationToken)
             {
-                try
+                using (var con = _connection.GetOracleDb())
                 {
-                    using (var con = _connection.GetOracleDb())
+                    IEnumerable<Indicator> indicadores = await con.QueryAsync<Indicator>(queryIndicador, new { }, null, 6000);
+                    List<Indicator> indicadoresLista = _mapper.Map<List<Indicator>>(indicadores);
+                    bool resultUpdate = false;
+
+                    string apiAddress = string.Empty;
+                    apiAddress = Environment.GetEnvironmentVariable("DASHMINSERVER");
+                    if ((apiAddress == "") || (apiAddress == null))
+                        apiAddress = _configuration.GetValue<string>("DashminServer");
+
+                    string businessName = string.Empty;
+                    businessName = Environment.GetEnvironmentVariable("BUSINESSNAME");
+                    if ((businessName == "") || (businessName == null))
+                        businessName = _configuration.GetValue<string>("BusinessName");
+
+                    _apiService.HttpMethodSelector("POST");
+
+                    DateTime dateToDisplay = DateTime.Now;
+                    string date = dateToDisplay.ToString("G", CultureInfo.CreateSpecificCulture("de-DE"));
+
+                    _logger.LogInformation($"{date} - Esperando.......");
+                    if (indicadoresLista.Count > 0)
                     {
-                        IEnumerable<Indicator> indicadores = await con.QueryAsync<Indicator>(queryIndicador, new { }, null, 6000);
-                        List<Indicator> indicadoresLista = _mapper.Map<List<Indicator>>(indicadores);
-
-                        string apiAddress = string.Empty;
-                        apiAddress = Environment.GetEnvironmentVariable("DASHMINSERVER");
-                        if (apiAddress == string.Empty)
-                            apiAddress = _configuration.GetValue<string>("DashminServer");
-
-                        string businessName = string.Empty;
-                        businessName = Environment.GetEnvironmentVariable("BUSINESSNAME");
-                        if (businessName == string.Empty)
-                            businessName = _configuration.GetValue<string>("BusinessName");
-
-                        _apiService.HttpMethodSelector("POST");
-
-                        DateTime dateToDisplay = DateTime.Now;
-                        string date = dateToDisplay.ToString("G", CultureInfo.CreateSpecificCulture("de-DE"));
-                        
-                        _logger.LogInformation($"{date} - Esperando.......");
-                        if (indicadoresLista.Count > 0)
+                        foreach (Indicator indicador in indicadoresLista)
                         {
-                            foreach (Indicator indicador in indicadoresLista)
+                            try
                             {
                                 OracleDynamicParameters queryParameters = new OracleDynamicParameters();
                                 indicador.BusinessName = businessName;
@@ -180,16 +181,15 @@ namespace Dashmin.Application.Reports.Commands
                                 if (indicador.CanExport)
                                 {
                                     bool confirmationDelete = true;
+                                    _logger.LogInformation($"Remove information: >>> \n {indicador.StoreProcedure}, BeginDate {indicador.BeginDate}, EndDate {indicador.EndDate} \n");
                                     if (indicador.DaysMemory > 0)
                                     {
                                         confirmationDelete = false;
-                                        _logger.LogInformation($"Remove information: >>> \n {indicador.StoreProcedure}, BeginDate {indicador.BeginDate}, EndDate {indicador.EndDate} \n");
                                         Result deleteConfirmation = await _mediator.Send(new DeleteRequest(indicador));
                                         confirmationDelete = deleteConfirmation.Succeeded;
                                     }
                                     if (confirmationDelete)
                                     {
-                                        _logger.LogInformation($"Loading information: >>> \n {indicador.StoreProcedure}, BeginDate {indicador.BeginDate}, EndDate {indicador.EndDate} \n");
                                         using (var reader = await con.ExecuteReaderAsync(indicador.StoreProcedure, queryParameters, null, 60000, CommandType.StoredProcedure))
                                         {
                                             while (reader.Read())
@@ -208,7 +208,8 @@ namespace Dashmin.Application.Reports.Commands
                                             if ( listIndicators.Count > 0 )
                                             {
                                                 _logger.LogInformation($"Send registers to server >>>> {listIndicators.Count.ToString()} \n");
-                                                _ = _apiService.GetDataFromApi<List<IndicatorResult>>($"{apiAddress}/data/UpdateDashboard", listIndicators);
+                                                var (resultApi,apiType) = await _apiService.GetDataFromApi<Result,List<IndicatorResult>>($"{apiAddress}/data/UpdateDashboard", listIndicators);
+                                                resultUpdate = resultApi.Succeeded;
                                             }
                                         }
                                     }
@@ -218,17 +219,36 @@ namespace Dashmin.Application.Reports.Commands
                                     }
                                 }
 
-                                string sqlQueryUpdate = $"UPDATE DBEXPORTAHISTORICO SET DTMFECHAEXPORT=TO_TIMESTAMP('{indicador.EndDate}', 'YYYY-MM-DD HH24:MI:SS') WHERE INTCVEPROCEDIMIENTO = {indicador.IdIndicator}";
+                                string sqlQueryUpdate = string.Empty;
+                                if (resultUpdate)
+                                    sqlQueryUpdate = $"UPDATE DBEXPORTAHISTORICO SET DTMFECHAEXPORT=TO_TIMESTAMP('{indicador.EndDate}', 'YYYY-MM-DD HH24:MI:SS') WHERE INTCVEPROCEDIMIENTO = {indicador.IdIndicator}";
+                                else
+                                    sqlQueryUpdate = @$"UPDATE DBEXPORTAHISTORICO SET
+                                                        DTMFECHAEXPORT = null,
+                                                        DTMFECHAINICIAL = TO_TIMESTAMP('{indicador.BeginDate}', 'YYYY-MM-DD HH24:MI:SS'),
+                                                        DTMFECHAFINAL = TO_TIMESTAMP('{DateTime.Now}', 'YYYY-MM-DD HH24:MI:SS'),
+                                                        BITEXPORTAHISTORICO = 1
+                                                        WHERE INTCVEPROCEDIMIENTO = {indicador.IdIndicator}";
 
                                 int rowsAffected = con.Execute(sqlQueryUpdate);
                             }
+                            catch (System.Exception ex)
+                            {
+                                string dateError = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                                var sqlQueryUpdate = @$"UPDATE DBEXPORTAHISTORICO SET
+                                                        DTMFECHAEXPORT = null,
+                                                        DTMFECHAINICIAL = TO_TIMESTAMP('{indicador.BeginDate}', 'YYYY-MM-DD HH24:MI:SS'),
+                                                        DTMFECHAFINAL = TO_TIMESTAMP('{dateError}', 'YYYY-MM-DD HH24:MI:SS'),
+                                                        BITEXPORTAHISTORICO = 1
+                                                        WHERE INTCVEPROCEDIMIENTO = {indicador.IdIndicator}";
+
+                                int rowsAffected = con.Execute(sqlQueryUpdate);
+                                _logger.LogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"Error {ex.Message} {ex.InnerException} \n");
+                                throw new Exception(ex.Message);
+                            }
                         }
                     }
-                }
-                catch (System.Exception ex)
-                {
-                    _logger.LogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"Error {ex.Message} {ex.InnerException} \n");
-                    throw new Exception(ex.Message);
                 }
                 return Result.Success();
             }

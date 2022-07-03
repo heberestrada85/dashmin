@@ -35,10 +35,10 @@
                 "KUBECONFIG": "/workspace/.kube/config",
                 "TZ": "America/Chihuahua",
                 "LANG": "es_ES.utf8",
-                "POSTGRESCONNECTIONSTRING": "Host=dashboard.hospisoft.mx;Database=dashboard;Username=dashboard;Password=041099;Pooling=false;Timeout=300;CommandTimeout=300",
-                "ORACLECONNECTIONSTRING": "Data Source=desarrollodb.hospisoft.mx:1585/DBDEV;User Id=dbo;Password=041099",
-                "DASHMINSERVER": "http://localhost:5001",
-                "BUSINESSNAME": "MI HOSPITAL SIHO"
+                //"POSTGRESCONNECTIONSTRING": "Host=dashboard.hospisoft.mx;Database=dashboard;Username=dashboard;Password=041099;Pooling=false;Timeout=300;CommandTimeout=300",
+                //"ORACLECONNECTIONSTRING": "Data Source=desarrollodb.hospisoft.mx:1585/DBDEV;User Id=dbo;Password=041099",
+                //"DASHMINSERVER": "http://localhost:5001",
+                //"BUSINESSNAME": "MI HOSPITAL SIHO"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

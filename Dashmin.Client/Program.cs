@@ -57,7 +57,6 @@ namespace Dashmin.Client
             {
                 host.RunAsService();
             }
-            
         }
 
         /// <summary>
@@ -81,7 +80,7 @@ namespace Dashmin.Client
             return WebHost.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, Builder) =>
                 {
-                    Builder
+                    Builder.AddJsonFile($"{path}\\appsettings.json", false, true)
                     .AddEnvironmentVariables();
                 })
                 .ConfigureLogging((hostingContext, logging) =>

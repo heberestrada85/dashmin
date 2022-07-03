@@ -66,7 +66,7 @@ namespace Dashmin.Infraestructure.Services
         /// </summary>
         /// <param name="apiAddress"> EndPoint de la peticion que se realiza </param>
         /// <param name="dataToSend"> Parametros a enviar en la solicitud del api service </param>
-        public async Task<(Result,T)> GetDataFromApi<T>(string apiAddress,T dataToSend)
+        public async Task<(Result,T)> GetDataFromApi<T,T2>(string apiAddress,T2 dataToSend)
         {
             _ruta = $"{apiAddress}";
             _contentToSend = new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json");

@@ -41,6 +41,7 @@ namespace Dashmin.Application.Common.Interface
         DbSet<var_total_dias_hospitalizacion> var_total_dias_hospitalizacion { get; set; }
         DbSet<var_total_egresos> var_total_egresos { get; set; }
         DbSet<var_total_ingresos_actuales> var_total_ingresos_actuales { get; set; }
+        DbSet<indicador_actualizacion> indicador_actualizacion { get; set; }
 
         /// <summary>
         /// Saves the changes asynchronous.
