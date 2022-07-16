@@ -114,7 +114,8 @@ namespace Dashmin.Application.Reports.Commands
                     else
                     {
                         information.fecha_actualizacion =  request._entitie.fecha_actualizacion;
-                        information.fecha_indicador =  request._entitie.fecha_indicador;
+                        information.fecha_inicio_indicador =  request._entitie.fecha_inicio_indicador;
+                        information.fecha_fin_indicador =  request._entitie.fecha_fin_indicador;
                         _context.indicador_actualizacion.Update(information);
                     }
 

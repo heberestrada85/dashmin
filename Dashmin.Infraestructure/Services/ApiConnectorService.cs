@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Dashmin.Application.Common.Interface;
 using Dashmin.Application.Common.Models;
 using System.Collections.Generic;
+using System;
 
 namespace Dashmin.Infraestructure.Services
 {
@@ -76,19 +77,21 @@ namespace Dashmin.Infraestructure.Services
         public async Task<(Result,T)> SendDataToApi<T>()
         {
             HttpRequestMessage request = new HttpRequestMessage();
+            var _uri = new Uri
+                (_ruta);
             switch (_httpMethod)
             {
                 case "GET":
-                    request = new HttpRequestMessage(HttpMethod.Get, _ruta);
+                    request = new HttpRequestMessage(HttpMethod.Get, _uri);
                     break;
                 case "POST":
-                    request = new HttpRequestMessage(HttpMethod.Post, _ruta);
+                    request = new HttpRequestMessage(HttpMethod.Post, _uri);
                     break;
                 case "PUT":
-                    request = new HttpRequestMessage(HttpMethod.Put, _ruta);
+                    request = new HttpRequestMessage(HttpMethod.Put, _uri);
                     break;
                 case "DELETE":
-                    request = new HttpRequestMessage(HttpMethod.Delete, _ruta);
+                    request = new HttpRequestMessage(HttpMethod.Delete, _uri);
                     break;
             }
 

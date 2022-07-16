@@ -93,6 +93,7 @@ namespace Dashmin.Application.Reports.Commands
                     try
                     {
                         DateTime dateValue;
+                        int number;
                         foreach(IndicatorResult model in request._model)
                         {
                             try
@@ -102,11 +103,11 @@ namespace Dashmin.Application.Reports.Commands
                                 data.empresa_contable = Int32.Parse(model.Business);
                                 data.organizacion_id  = organization.IdOrganization;
                                 data.idkardex         = Int32.Parse(model.Value.Split('|')[0] != "" ? model.Value.Split('|')[0] : "0");
-                                data.nombrebanco      = model.Value.Split('|')[1]; 
-                                data.moneda           = model.Value.Split('|')[2]; 
-                                data.fechamovimiento  = DateTime.TryParse(model.Value.Split('|')[3], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
-                                data.tipomovimiento   = model.Value.Split('|')[4]; 
-                                data.referencia       = model.Value.Split('|')[5]; 
+                                data.nombrebanco      = model.Value.Split('|')[1];
+                                data.fechamovimiento  = DateTime.TryParse(model.Value.Split('|')[2], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
+                                data.tipomovimiento   = model.Value.Split('|')[3];
+                                data.moneda           = model.Value.Split('|')[4];
+                                data.referencia       = model.Value.Split('|')[5];
                                 data.cargo            = float.Parse(model.Value.Split('|')[7] != "" ? model.Value.Split('|')[7] : "0" );
                                 data.abono            = float.Parse(model.Value.Split('|')[8] != "" ? model.Value.Split('|')[8] : "0" );
                                 DataSet.Add(data);

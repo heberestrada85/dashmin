@@ -105,9 +105,9 @@ namespace Dashmin.Application.Reports.Commands
                                 data.fecha_dato       = DateTime.Parse(fechaDato);
                                 data.organizacion_id  = organization.IdOrganization;
                                 data.numcliente       = Int32.Parse(model.Value.Split('|')[0] != "" ? model.Value.Split('|')[0] : "0");
-                                data.tipocliente      = model.Value.Split('|')[1]; 
-                                data.nombre           = model.Value.Split('|')[2]; 
-                                data.descripcion      = model.Value.Split('|')[3]; 
+                                data.tipocliente      = model.Value.Split('|')[1];
+                                data.nombre           = model.Value.Split('|')[2];
+                                data.descripcion      = model.Value.Split('|')[3];
                                 data.limitecredito    = float.Parse(model.Value.Split('|')[4] != "" ? model.Value.Split('|')[4] : "0");
                                 data.saldoscli        = float.Parse(model.Value.Split('|')[5] != "" ? model.Value.Split('|')[5] : "0");
                                 data.diasvencimiento  = Int32.Parse(model.Value.Split('|')[6] != "" ? model.Value.Split('|')[6] : "0");

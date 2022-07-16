@@ -16,6 +16,7 @@ namespace Dashmin.Application.Common.Entities
         public long id_organizacion { get; set; }
         public DateTime fecha_actualizacion { get; set; }
         public long id_indicador { get; set; }
-        public DateTime fecha_indicador { get; set; }
+        public DateTime fecha_inicio_indicador { get; set; }
+        public DateTime fecha_fin_indicador { get; set; }
     }
 }

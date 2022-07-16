@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Dashmin.Infraestructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using Microsoft.Extensions.FileProviders;
 
 namespace Dashmin.Server
 {
@@ -55,7 +57,7 @@ namespace Dashmin.Server
             services.AddInfrastructure(Configuration);
             services.AddHttpContextAccessor();
             services.AddMvc().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            
+
             // Development
             services.AddCors(options =>
             {
@@ -84,7 +86,7 @@ namespace Dashmin.Server
                     document.Info.Contact = new OpenApiContact
                     {
                         Name = "Development",
-                        Email = "development@andjon.com",
+                        Email = "development@andjon.mx",
                     };
                 };
             });
@@ -112,18 +114,23 @@ namespace Dashmin.Server
             app.UseForwardedHeaders( new ForwardedHeadersOptions{
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-            
+
             // CORS
             app.UseHsts();
             app.UseCors(MyAllowSpecificOrigins);
 
             // HealthChecks
             app.UseHealthChecks("/health");
-            
+
             // Use default static files
             app.UseDefaultFiles();
-            app.UseStaticFiles();
-            
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+                RequestPath = "/dashmin"
+            });
+
             // Authorizations
             app.UseAuthentication();
             app.UseRouting();

@@ -108,19 +108,19 @@ namespace Dashmin.Application.Reports.Commands
                                 data.tiporeferencia   = model.Value.Split('|')[1]; 
                                 data.fechamovimiento  = DateTime.TryParse(model.Value.Split('|')[2], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
                                 data.numcliente       = Int32.Parse(model.Value.Split('|')[3] != "" ? model.Value.Split('|')[3] : "0");
-                                data.nombredes        = model.Value.Split('|')[4]; 
-                                data.fechainicial     = DateTime.TryParse(model.Value.Split('|')[5], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
-                                data.fechafinal       = DateTime.TryParse(model.Value.Split('|')[6], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
-                                data.cantidadcredito  = Int32.Parse(model.Value.Split('|')[7] != "" ? model.Value.Split('|')[7] : "0");
-                                data.fecha_envio      = DateTime.TryParse(model.Value.Split('|')[8], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
-                                data.paquete          = model.Value.Split('|')[9]; 
-                                data.tipocliente      = model.Value.Split('|')[10]; 
+                                data.tipocliente      = model.Value.Split('|')[4]; 
+                                data.nombredes        = model.Value.Split('|')[5]; 
+                                data.fechainicial     = DateTime.TryParse(model.Value.Split('|')[6], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
+                                data.fechafinal       = DateTime.TryParse(model.Value.Split('|')[7], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
+                                data.cantidadcredito  = Int32.Parse(model.Value.Split('|')[8] != "" ? model.Value.Split('|')[8] : "0");
+                                data.fecha_envio      = DateTime.TryParse(model.Value.Split('|')[9], out dateValue) ? dateValue : DateTime.Parse(fechaDato);
+                                data.paquete          = model.Value.Split('|')[10]; 
                                 DataSet.Add(data);
                                 x++;
                             }
                             catch(System.Exception ex)
                             {
-                                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"{organization.IdOrganization} - {organization.Name} - var_saldos_bancos: Error {ex.Message} {JsonSerializer.Serialize(request._model[x])} \n");
+                                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"{organization.IdOrganization} - {organization.Name} - var_paquete_cobranza: Error {ex.Message} {JsonSerializer.Serialize(request._model[x])} \n");
                             }
                         }
                         var deleteQuery = @$"DELETE FROM var_paquete_cobranza WHERE organizacion_id = {organization.IdOrganization} AND fechamovimiento between '{DataSet.Min(o =>o.fechamovimiento).ToString("yyyy-MM-dd")}' and '{DataSet.Max(o =>o.fechamovimiento).ToString("yyyy-MM-dd")}'";

@@ -35,12 +35,12 @@ namespace Dashmin.Server.Controllers
         /// Realiza la obtencion de informacion desde oracle
         /// </summary>
         /// <returns>Result</returns>
-        //[AllowAnonymous]
-        //[HttpGet("UpdateRequest")]
-        //public async Task<Result> UpdateRequest(string businessName)
-        //{
-        //    return await Mediator.Send(new UpdateRequest(businessName));
-        //}
+        [AllowAnonymous]
+        [HttpGet("GetIndicatorStatus")]
+        public async Task<List<IndicatorStatus>> GetIndicatorStatus()
+        {
+            return await Mediator.Send(new GetIndicatorStatus());
+        }
 
         /// <summary>
         /// Realiza la actualizacion de informacion en postgres

@@ -180,42 +180,27 @@ namespace Dashmin.Application.Reports.Commands
 
                                 if (indicador.CanExport)
                                 {
-                                    bool confirmationDelete = true;
-                                    _logger.LogInformation($"Remove information: >>> \n {indicador.StoreProcedure}, BeginDate {indicador.BeginDate}, EndDate {indicador.EndDate} \n");
-                                    if (indicador.DaysMemory > 0)
+                                    using (var reader = await con.ExecuteReaderAsync(indicador.StoreProcedure, queryParameters, null, 60000, CommandType.StoredProcedure))
                                     {
-                                        confirmationDelete = false;
-                                        Result deleteConfirmation = await _mediator.Send(new DeleteRequest(indicador));
-                                        confirmationDelete = deleteConfirmation.Succeeded;
-                                    }
-                                    if (confirmationDelete)
-                                    {
-                                        using (var reader = await con.ExecuteReaderAsync(indicador.StoreProcedure, queryParameters, null, 60000, CommandType.StoredProcedure))
+                                        while (reader.Read())
                                         {
-                                            while (reader.Read())
+                                            result = new IndicatorResult()
                                             {
-                                                result = new IndicatorResult()
-                                                {
-                                                    Business = reader["EMPRESA"].ToString(),
-                                                    BusinessName = businessName,
-                                                    Clave = reader["CLAVE"].ToString(),
-                                                    Description = reader["DESCRIPCION"].ToString(),
-                                                    IdIndicator = reader["IDINDICADOR"].ToString(),
-                                                    Value = reader["VALOR"].ToString()
-                                                };
-                                                listIndicators.Add(result);
-                                            }
-                                            if ( listIndicators.Count > 0 )
-                                            {
-                                                _logger.LogInformation($"Send registers to server >>>> {listIndicators.Count.ToString()} \n");
-                                                var (resultApi,apiType) = await _apiService.GetDataFromApi<Result,List<IndicatorResult>>($"{apiAddress}/data/UpdateDashboard", listIndicators);
-                                                resultUpdate = resultApi.Succeeded;
-                                            }
+                                                Business = reader["EMPRESA"].ToString(),
+                                                BusinessName = businessName,
+                                                Clave = reader["CLAVE"].ToString(),
+                                                Description = reader["DESCRIPCION"].ToString(),
+                                                IdIndicator = reader["IDINDICADOR"].ToString(),
+                                                Value = reader["VALOR"].ToString()
+                                            };
+                                            listIndicators.Add(result);
                                         }
-                                    }
-                                    else
-                                    {
-                                        _logger.LogError($"Error in Remove information: >>> {indicador.StoreProcedure}, BeginDate {indicador.BeginDate}, EndDate {indicador.EndDate} \n");
+                                        if ( listIndicators.Count > 0 )
+                                        {
+                                            _logger.LogInformation($"Send registers to server {apiAddress}/data/UpdateDashboard >>>> {listIndicators.Count.ToString()} \n");
+                                            var (resultApi,apiType) = await _apiService.GetDataFromApi<Result,List<IndicatorResult>>($"{apiAddress}/data/UpdateDashboard", listIndicators);
+                                            resultUpdate = resultApi.Succeeded;
+                                        }
                                     }
                                 }
 
@@ -244,8 +229,7 @@ namespace Dashmin.Application.Reports.Commands
                                                         WHERE INTCVEPROCEDIMIENTO = {indicador.IdIndicator}";
 
                                 int rowsAffected = con.Execute(sqlQueryUpdate);
-                                _logger.LogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"Error {ex.Message} {ex.InnerException} \n");
-                                throw new Exception(ex.Message);
+                                _logger.LogError(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $"Error {indicador.StoreProcedure} -> {ex.Message} {ex.InnerException} \n");
                             }
                         }
                     }

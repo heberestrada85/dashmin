@@ -110,120 +110,156 @@ namespace Dashmin.Application.Reports.Commands
 
                 using (IDbConnection  conn = _connection.GetNpgsqlDb())
                 {
+                    if (request._model == null)
+                        throw new Exception("Model is empty");
+
+                    string business = request._model.FirstOrDefault().BusinessName;
                     try
                     {
                         organization_find = await conn.QuerySingleAsync<Organization>("SELECT id AS IdOrganization, nombre AS Name FROM ORGANIZACION WHERE RAZON_SOCIAL = @razon",
-                                                                    new { razon = request._model.FirstOrDefault().BusinessName }, null, 6000);
+                                                                    new { razon = business }, null, 6000);
 
                         organization = await conn.QuerySingleAsync<Organization>("SELECT id AS IdOrganization, nombre AS Name FROM ORGANIZACION WHERE RAZON_SOCIAL = @razon AND ACTIVO = 1",
-                                                                    new { razon = request._model.FirstOrDefault().BusinessName }, null, 6000);
-
+                                                                    new { razon = business }, null, 6000);
                         if (organization_find is null)
                         {
-                            string razon = request._model.FirstOrDefault().BusinessName;
                             string fechaDato = DateTime.Now.ToString("yyyy-MM-dd");
                             var insertQuery = @$"INSERT INTO organizacion (id,nombre,fecha_creacion,fecha_actualizacion,razon_social,activo)
-                                                    VALUES ( (SELECT MAX(id) + 1 from organizacion),{razon},{fechaDato},{fechaDato},{razon},1) )";
+                                                    VALUES ( (SELECT MAX(id) + 1 from organizacion),{business},{fechaDato},{fechaDato},{business},1) )";
 
                             var affectedRows = conn.Execute( insertQuery,commandType: CommandType.Text,commandTimeout: 900);
-                            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $">>>> Creando organizacion desactivada {request._model.FirstOrDefault().BusinessName}");
+                            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $">>>> Creando organizacion desactivada {business}");
                         }
                         else if (organization is null)
                         {
-                            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $">>>> No se puede recuperar la informacion para la empresa {request._model.FirstOrDefault().BusinessName}");
-                            return Result.Failure(new[]{ $"No se puede recuperar la informacion para la empresa {request._model.FirstOrDefault().BusinessName}" });
+                            Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $">>>> No se puede recuperar la informacion para la empresa {business}");
+                            return Result.Failure(new[]{ $"No se puede recuperar la informacion para la empresa {business}" });
                         }
 
                         indicador_actualizacion entitie = new indicador_actualizacion();
                         entitie.id_organizacion = organization.IdOrganization;
                         entitie.fecha_actualizacion = DateTime.Now;
-                        entitie.fecha_indicador = DateTime.Now;
+                        DateTime dateValue;
 
                         switch (request._model.FirstOrDefault().IdIndicator)
                         {
                             case "1001":
                                 //Objetivo_cobranza
                                 entitie.id_indicador = 1001;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[12], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[12], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new CollectionObjective(request._model,organization));
                                 break;
                             case "1002":
                                 //Total_egresos
                                 entitie.id_indicador = 1002;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[13], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[13], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new TotalExpenses(request._model,organization));
                                 break;
                             case "1003":
                                 //Consultas_urgencias
                                 entitie.id_indicador = 1003;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[3], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[3], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new EmergencyConsultations(request._model,organization));
                                 break;
                             case "1004":
                                 //Dias_hospitalizacion
                                 entitie.id_indicador = 1004;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[2], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[2], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new DaysHospitalization(request._model,organization));
                                 break;
                             case "1005":
                                 //Ingresos_actuales
                                 entitie.id_indicador = 1005;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[13], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[13], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new CurrentIncome(request._model,organization));
                                 break;
                             case "1006":
                                 //Diagnosticos_al_egreso
                                 entitie.id_indicador = 1006;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[7], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[7], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new DiagnosesUponDischarge(request._model,organization));
                                 break;
                             case "1007":
                                 //Facturacion_tipo_paciente
                                 entitie.id_indicador = 1007;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[7], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[7], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new PatientTypeBilling(request._model,organization));
                                 break;
                             case "1008":
                                 //Cuentas_pacientes
                                 entitie.id_indicador = 1008;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[8], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[8], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new PatientAccounts(request._model,organization));
                                 break;
                             case "1009":
                                 //Cirugias_pacientes
                                 entitie.id_indicador = 1009;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[5], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[5], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new PatientSurgeries(request._model,organization));
                                 break;
                             case "1010":
                                 //Ocupacion_hospitalaria
                                 entitie.id_indicador = 1010;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[0], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[0], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new HospitalOccupation(request._model,organization));
                                 break;
                             case "1011":
                                 //Cronologico_facturas
                                 entitie.id_indicador = 1011;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[18], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[18], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new ChronologicalInvoices(request._model,organization));
                                 break;
                             case "1012":
                                 //Antiguedad_saldos
                                 entitie.id_indicador = 1012;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[1], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[1], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new BalancesSeniority(request._model,organization));
                                 break;
                             case "1013":
                                 //Paquete_cobranza
                                 entitie.id_indicador = 1013;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[2], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[2], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new CollectionPackage(request._model,organization));
                                 break;
                             case "1014":
                                 //Limite_credito
                                 entitie.id_indicador = 1014;
+                                entitie.fecha_inicio_indicador =  DateTime.Now;
+                                entitie.fecha_fin_indicador = DateTime.Now;
                                 await _mediator.Send(new CreditLimit(request._model,organization));
                                 break;
                             case "1015":
                                 //Saldos_bancos
                                 entitie.id_indicador = 1015;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[3], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[3], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new BankBalances(request._model,organization));
                                 break;
                             case "1016":
                                 //Cargos Diarios
                                 entitie.id_indicador = 1016;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[19], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[19], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new DirectCharges(request._model,organization));
                                 break;
                             case "1017":
                                 //Pacientes_ingresos_por_urgencias
                                 entitie.id_indicador = 1017;
+                                entitie.fecha_inicio_indicador = request._model.Min( o => DateTime.TryParse(o.Value.Split('|')[0], out dateValue) ? dateValue : DateTime.Now);
+                                entitie.fecha_fin_indicador = request._model.Max( o => DateTime.TryParse(o.Value.Split('|')[0], out dateValue) ? dateValue : DateTime.Now);
                                 await _mediator.Send(new PatientAdmissions(request._model,organization));
                                 break;
                             default:
@@ -315,7 +351,7 @@ namespace Dashmin.Application.Reports.Commands
                                 indicatorName = "Pacientes_ingresos_por_urgencias";
                                 break;
                         }
-                        Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $" >>>> {request._model.FirstOrDefault().IdIndicator}-{indicatorName} Error {ex.Message} \n");
+                        Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + $" >>>> {business} - {request._model.FirstOrDefault().IdIndicator}-{indicatorName} Error {ex.Message} \n");
                         return Result.Failure(new[]{ ex.Message } );
                     }
                     return Result.Success();
